@@ -15,4 +15,6 @@ typedef struct {
 
 void generate_bacteria(int num_bodies, Bacterium* bodies);
 
+void shade_based_on_health(Bacterium* bacterium);
+
 #endif

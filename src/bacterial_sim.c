@@ -12,6 +12,14 @@ void generate_bacteria(int num_bodies, Bacterium* bacteria) {
         bacteria[i].reproduction_rate =  ((double) rand() / RAND_MAX);
         bacteria[i].lifespan =  ((double) rand() / RAND_MAX);
         bacteria[i].radius = ((double) rand() / RAND_MAX) / 5.0;
-        bacteria[i].colour = (Color) { rand() % 256, rand() % 256, rand() % 256, 255 };
+        shade_based_on_health(&bacteria[i]);
     }
+}
+
+void shade_based_on_health(Bacterium* bacterium) {
+    double r = (unsigned char)(255 * (1 - bacterium->health)); // Red decreases as health increases
+    double g = (unsigned char)(255 * bacterium->health); // Green increases as health increases
+    double b = 0; // Blue remains 0
+
+    bacterium->colour = (Color) { (unsigned char)r, (unsigned char)g, (unsigned char)b, 255 };
 }
