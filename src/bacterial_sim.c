@@ -3,23 +3,40 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-void generate_bacteria(int num_bodies, Bacterium* bacteria) {
+void generate_bacteria(int num_bodies, Bacterium* bacteria, int screen_width, int screen_height) {
     for (int i = 0; i < num_bodies; i++) {
-        bacteria[i].position = (Vector3){ (double)(rand() % (100 - (-100) + 1) + (-100)), (double)(rand() % (100 - (-100) + 1) + (-100)), (double)(rand() % (100 - (-100) + 1) + (-100)) };
-        bacteria[i].velocity = (Vector3){ (double)(rand() % (5 - (-5) + 1) + (-5)), (double)(rand() % (5 - (-5) + 1) + (-5)), (double)(rand() % (5 - (-5) + 1) + (-5)) };
-        bacteria[i].health =  ((double) rand() / RAND_MAX) * 15.0;
+        // place inside screen
+        float x = (float)(rand() % screen_width);
+        float y = (float)(rand() % screen_height);
+        bacteria[i].position = (Vector2){ x, y };
+
+        // small random velocity (pixels per second)
+        float vx = ((float)rand() / RAND_MAX) * 2.0f - 1.0f;
+        float vy = ((float)rand() / RAND_MAX) * 2.0f - 1.0f;
+        bacteria[i].velocity = (Vector2){ vx * 50.0f, vy * 50.0f };
+
+        // normalize health to 0..1
+        bacteria[i].health = ((double) rand() / RAND_MAX);
+
         bacteria[i].nutrient_uptake =  ((double) rand() / RAND_MAX);
         bacteria[i].reproduction_rate =  ((double) rand() / RAND_MAX);
         bacteria[i].lifespan =  ((double) rand() / RAND_MAX);
-        bacteria[i].radius = ((double) rand() / RAND_MAX) / 5.0;
+
+        // make radius visible
+        bacteria[i].radius = 2.0 + ((double) rand() / RAND_MAX) * 4.0; // 2..6 px
+
         shade_based_on_health(&bacteria[i]);
     }
 }
 
 void shade_based_on_health(Bacterium* bacterium) {
-    double r = (unsigned char)(255 * (1 - bacterium->health)); // Red decreases as health increases
-    double g = (unsigned char)(255 * bacterium->health); // Green increases as health increases
-    double b = 0; // Blue remains 0
+    double h = bacterium->health;
+    if (h < 0.0) h = 0.0;
+    if (h > 1.0) h = 1.0;
 
-    bacterium->colour = (Color) { (unsigned char)r, (unsigned char)g, (unsigned char)b, 255 };
+    int r = (int)(255.0 * (1.0 - h));
+    int g = (int)(255.0 * h);
+    int b = 0;
+
+    bacterium->colour = (Color){ (unsigned char)r, (unsigned char)g, (unsigned char)b, 255 };
 }

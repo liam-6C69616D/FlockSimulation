@@ -13,31 +13,21 @@ int main(void) {
 
     srand(time(NULL));
 
-    // Define the camera to look into our 3d world
-    Camera camera = { 0 };
-    camera.position = (Vector3){ 0.0f, 0.0f, 100.0f };
-    camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };
-    camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
-    camera.fovy = 45.0f;
-    camera.projection = CAMERA_PERSPECTIVE;
-
+    
     Bacterium *bacteria = (Bacterium *) malloc(sizeof(Bacterium) * NUMBER_OF_BACTERIA);
-    generate_bacteria(NUMBER_OF_BACTERIA, bacteria);
+    int bacteria_count = NUMBER_OF_BACTERIA;
+    generate_bacteria(bacteria_count, bacteria, screenWidth, screenHeight);
 
     SetTargetFPS(60);
 
     while (!WindowShouldClose()) {
         BeginDrawing();
 
-            ClearBackground((Color) { 0, 0, 0, 255 });
+            ClearBackground((Color) { 0, 0, 0, 255 });          
 
-            BeginMode3D(camera);
-
-                for (int i = 0; i < NUMBER_OF_BACTERIA; i++) {
-                    DrawSphere(bacteria[i].position, bacteria[i].radius, bacteria[i].colour);
-                }
-
-            EndMode3D();
+            for (int i = 0; i < bacteria_count; i++) {
+                DrawCircle(bacteria[i].position.x, bacteria[i].position.y, bacteria[i].radius, bacteria[i].colour);
+            }
 
             DrawFPS(10, 10);
 
