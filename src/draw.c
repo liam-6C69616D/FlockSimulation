@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <time.h>
 
-#define NUMBER_OF_BACTERIA 2000
+int bacteria_count = 500;
 
 int main(void) {
     const int screenWidth = 1920;
@@ -14,8 +14,7 @@ int main(void) {
     srand(time(NULL));
 
     
-    Bacterium *bacteria = (Bacterium *) malloc(sizeof(Bacterium) * NUMBER_OF_BACTERIA);
-    int bacteria_count = NUMBER_OF_BACTERIA;
+    Bacterium *bacteria = (Bacterium *) malloc(sizeof(Bacterium) * bacteria_count);
     generate_bacteria(bacteria_count, bacteria, screenWidth, screenHeight);
 
     SetTargetFPS(60);
@@ -23,18 +22,21 @@ int main(void) {
     while (!WindowShouldClose()) {
         BeginDrawing();
 
-            ClearBackground((Color) { 0, 0, 0, 255 });          
+            ClearBackground((Color) { 0, 0, 0, 255 });
 
             for (int i = 0; i < bacteria_count; i++) {
                 DrawCircle(bacteria[i].position.x, bacteria[i].position.y, bacteria[i].radius, bacteria[i].colour);
             }
 
+            time_step(bacteria, GetFrameTime());
+
             DrawFPS(10, 10);
+
 
         EndDrawing();
     }
 
-    CloseWindow(); // Close window and OpenGL context
+    CloseWindow();
 
     return 0;
 }
