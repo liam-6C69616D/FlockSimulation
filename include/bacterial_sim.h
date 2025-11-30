@@ -22,8 +22,8 @@ bool die(Bacterium* bacterium);
 Vector2 next_position(Bacterium* bacterium, double delta_time);
 double next_health(Bacterium* bacterium, double delta_time);
 
-void time_step(Bacterium* bacteria, double delta_time);
-
-void remove_bacterium(Bacterium* bacteria, int* bacteria_count, int index);
+Bacterium* time_step(Bacterium* bacteria, double delta_time);
+Bacterium* remove_bacterium(Bacterium* bacteria, int* bacteria_count, int index);
+Bacterium* reproduce_bacterium(Bacterium* bacteria, int* bacteria_count, int index);
 
 #endif

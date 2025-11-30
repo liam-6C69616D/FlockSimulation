@@ -62,23 +62,30 @@ bool die(Bacterium* bacterium) {
     return bacterium->health <= 0.0 || bacterium->lifespan <= 0.0;
 }
 
-void time_step(Bacterium* bacteria, double delta_time) {
-    for (int i = 0; i < bacteria_count; i++) {
+Bacterium* time_step(Bacterium* bacteria, double delta_time) {
+    for (int i = 0; i < bacteria_count && bacteria != NULL; i++) {
         bacteria[i].position = next_position(&bacteria[i], delta_time);
         bacteria[i].health = next_health(&bacteria[i], delta_time);
         bacteria[i].lifespan = next_lifespan(&bacteria[i], delta_time);
         bacteria[i].colour = shade_based_on_health(&bacteria[i]);
 
         if (die(&bacteria[i])) {
-            remove_bacterium(bacteria, &bacteria_count, i);
+            bacteria = remove_bacterium(bacteria, &bacteria_count, i);
             i--; // Adjust index after removal
+            continue;
+        }
+
+        if (bacteria[i].health > 0.7 && ((double) rand() / RAND_MAX) < bacteria[i].reproduction_rate * delta_time) {
+            bacteria = reproduce_bacterium(bacteria, &bacteria_count, i);
         }
     }
+
+    return bacteria;
 }
 
-void remove_bacterium(Bacterium* bacteria, int* bacteria_count, int index) {
+Bacterium* remove_bacterium(Bacterium* bacteria, int* bacteria_count, int index) {
     if (index < 0 || index >= *bacteria_count) {
-        return; // Invalid index
+        return bacteria; // Invalid index
     }
 
     // Shift bacteria to fill the gap
@@ -88,4 +95,48 @@ void remove_bacterium(Bacterium* bacteria, int* bacteria_count, int index) {
 
     // Decrease the count of bacteria
     (*bacteria_count)--;
+
+    if (*bacteria_count == 0) {
+        free(bacteria);
+        return NULL;
+    }
+
+    Bacterium* tmp = (Bacterium*) realloc(bacteria, sizeof(Bacterium) * (*bacteria_count));
+    if (tmp == NULL) {
+        return bacteria; // Reallocation failed, return original pointer
+    }
+
+    return tmp;
+}
+
+Bacterium* reproduce_bacterium(Bacterium* bacteria, int* bacteria_count, int index) {
+    if (*bacteria_count >= 10000) {
+        return bacteria; // Limit maximum number of bacteria
+    }
+
+    Bacterium parent = bacteria[index];
+    Bacterium offspring;
+
+    // Offspring inherits properties with slight variations
+    offspring.position = (Vector2){ parent.position.x + (((double)rand() / RAND_MAX) - 0.5),
+                                    parent.position.y + (((double)rand() / RAND_MAX) - 0.5) };
+    offspring.velocity = (Vector2){ parent.velocity.x + (((double)rand() / RAND_MAX) - 0.5),
+                                    parent.velocity.y + (((double)rand() / RAND_MAX) - 0.5) };
+    offspring.health = parent.health * ((double) rand() / RAND_MAX);
+    offspring.nutrient_uptake = parent.nutrient_uptake + (((double) rand() / RAND_MAX) - 0.5);
+    offspring.reproduction_rate = parent.reproduction_rate;
+    offspring.lifespan = parent.lifespan + ((double) rand() / RAND_MAX) * 100.0 - 50.0; // slight variation
+    offspring.radius = (double)(2.0 + ((double) rand() / RAND_MAX) * 4.0);
+    offspring.colour = shade_based_on_health(&offspring);
+
+    size_t new_count = (size_t)(*bacteria_count) + 1;
+    Bacterium* tmp = (Bacterium*) realloc(bacteria, sizeof(Bacterium) * new_count);
+    if (tmp == NULL) {
+        return bacteria; // Reallocation failed, return original pointer
+    }
+
+    tmp[*bacteria_count] = offspring;
+    (*bacteria_count)++;
+
+    return tmp;
 }

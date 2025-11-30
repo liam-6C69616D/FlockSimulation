@@ -17,7 +17,7 @@ int main(void) {
     Bacterium *bacteria = (Bacterium *) malloc(sizeof(Bacterium) * bacteria_count);
     generate_bacteria(bacteria_count, bacteria, screenWidth, screenHeight);
 
-    SetTargetFPS(60);
+    SetTargetFPS(120);
 
     while (!WindowShouldClose()) {
         BeginDrawing();
@@ -28,7 +28,7 @@ int main(void) {
                 DrawCircle(bacteria[i].position.x, bacteria[i].position.y, bacteria[i].radius, bacteria[i].colour);
             }
 
-            time_step(bacteria, GetFrameTime());
+            bacteria = time_step(bacteria, GetFrameTime());
 
             DrawFPS(10, 10);
 
@@ -37,6 +37,8 @@ int main(void) {
     }
 
     CloseWindow();
+
+    free(bacteria);
 
     return 0;
 }
